@@ -6,7 +6,7 @@ public class OrthogonalMovement : MonoBehaviour, IMovement {
     [SerializeField] private UnitStats stats;
 
     [Header("Indicator")]
-    [SerializeField] private Color indicatorColor = Color. green;
+    [SerializeField] private Color indicatorColor = Color.green;
 
     private bool hasMoved = false;
 
