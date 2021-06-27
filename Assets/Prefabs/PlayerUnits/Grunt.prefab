@@ -86,8 +86,9 @@ GameObject:
   - component: {fileID: 789999816293909823}
   - component: {fileID: 1121986245524407647}
   - component: {fileID: 194285677897943028}
-  - component: {fileID: 4573121837841335119}
+  - component: {fileID: 4912267274773839787}
   - component: {fileID: 1068005757}
+  - component: {fileID: 5630769315219552673}
   m_Layer: 8
   m_Name: Grunt
   m_TagString: Untagged
@@ -184,7 +185,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.75}
   m_EdgeRadius: 0
---- !u!114 &4573121837841335119
+--- !u!114 &4912267274773839787
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -193,7 +194,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1417405140484955723}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcfd50622049bc2f69f35939ebf97d15, type: 3}
+  m_Script: {fileID: 11500000, guid: 91196cad324f7f64099a9aa4e1f4c80d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: c32a15c45375aec969028c53391f1966, type: 2}
@@ -211,6 +212,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: c32a15c45375aec969028c53391f1966, type: 2}
   indicatorColor: {r: 0.005606967, g: 0.3962264, b: 0.005606967, a: 0.4509804}
+  hasMoved: 0
+--- !u!114 &5630769315219552673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1417405140484955723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b9c5ffb8ee99c620b589d2ab22aa4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: c32a15c45375aec969028c53391f1966, type: 2}
+  explosionPrefab: {fileID: 6395359173462325691, guid: 5ee728ea422aa9045b08dd4528f32c96,
+    type: 3}
+  indicatorColor: {r: 0.4, g: 0, b: 0, a: 0.6509804}
+  hasAttacked: 0
 --- !u!1 &1417405140617996892
 GameObject:
   m_ObjectHideFlags: 0

@@ -93,8 +93,9 @@ GameObject:
   - component: {fileID: 1570378600815668502}
   - component: {fileID: 7153116226946465421}
   - component: {fileID: 1241330200944260150}
-  - component: {fileID: 3748129102950025184}
+  - component: {fileID: 4624204734772059899}
   - component: {fileID: 7189006364545304409}
+  - component: {fileID: 1562529682404675242}
   m_Layer: 8
   m_Name: Tank
   m_TagString: Untagged
@@ -191,7 +192,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &3748129102950025184
+--- !u!114 &4624204734772059899
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -200,7 +201,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2053561049747205162}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcfd50622049bc2f69f35939ebf97d15, type: 3}
+  m_Script: {fileID: 11500000, guid: 91196cad324f7f64099a9aa4e1f4c80d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 5f1e160ad604f3bb0a9481f801ffacf8, type: 2}
@@ -218,6 +219,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 5f1e160ad604f3bb0a9481f801ffacf8, type: 2}
   indicatorColor: {r: 0.003921569, g: 0.39607844, b: 0.003921569, a: 0.4509804}
+  hasMoved: 0
+--- !u!114 &1562529682404675242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053561049747205162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100f2ae95867d233db388706a51c25fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: 5f1e160ad604f3bb0a9481f801ffacf8, type: 2}
+  explosionPrefab: {fileID: 6395359173462325691, guid: 5ee728ea422aa9045b08dd4528f32c96,
+    type: 3}
+  indicatorColor: {r: 0.4, g: 0, b: 0, a: 0.6509804}
+  hasAttacked: 0
 --- !u!1 &2176193181147423310
 GameObject:
   m_ObjectHideFlags: 0
