@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f9a3f532c75119c4b8dd26d534b8f90, type: 3}
-  m_Name: Tank
+  m_Name: Jumpship
   m_EditorClassIdentifier: 
-  maxHealth: 4
+  maxHealth: 2
   attackPower: 2
-  stepsLimit: 3
-  intervalBetweenSteps: 0.4
+  stepsLimit: 7
+  attackLimit: 1
+  intervalBetweenSteps: 0.3

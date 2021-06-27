@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f9a3f532c75119c4b8dd26d534b8f90, type: 3}
-  m_Name: Grunt
+  m_Name: Tank
   m_EditorClassIdentifier: 
-  maxHealth: 2
-  attackPower: 1
-  stepsLimit: 1
+  maxHealth: 4
+  attackPower: 2
+  stepsLimit: 3
+  attackLimit: 7
   intervalBetweenSteps: 0.4
