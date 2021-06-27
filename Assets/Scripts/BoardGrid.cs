@@ -25,68 +25,36 @@ public class BoardGrid : MonoBehaviour {
         }
     }
 
-    public List<Vector2> GetFreeLeftPositions(Vector2 origin) {
-        List<Vector2> result = new List<Vector2>();
-        Vector2Int originInt = Vector2Int.FloorToInt(origin);
-
-        for(int x = originInt.x - 1; x >= 0; --x) {
-            Vector2 position = new Vector2(x, originInt.y);
-            int tileValue = boardGrid.GetTileValue(position);
-
-            if(tileValue > 0) { break; }
-
-            result.Add(position);
-        }
+    public int GetTileValue(Vector2Int position) {
+        Vector3Int position3Int = new Vector3Int(position.x, position.y, 0);
+        int result = boardGrid.GetTileValue(position3Int);
 
         return result;
     }
 
-    public List<Vector2> GetFreeRightPositions(Vector2 origin) {
-        List<Vector2> result = new List<Vector2>();
-        Vector2Int originInt = Vector2Int.FloorToInt(origin);
-
-        for(int x = originInt.x + 1; x < width; ++x) {
-            Vector2 position = new Vector2(x, originInt.y);
-            int tileValue = boardGrid.GetTileValue(position);
-
-            if(tileValue > 0) { break; }
-
-            result.Add(position);
-        }
+    public int GetTileValue(Vector3 position) {
+        int result = boardGrid.GetTileValue(position);
 
         return result;
     }
 
-    public List<Vector2> GetFreeDownPositions(Vector2 origin) {
-        List<Vector2> result = new List<Vector2>();
-        Vector2Int originInt = Vector2Int.FloorToInt(origin);
-
-        for(int y = originInt.y - 1; y >= 0; --y) {
-            Vector2 position = new Vector2(originInt.x, y);
-            int tileValue = boardGrid.GetTileValue(position);
-
-            if(tileValue > 0) { break; }
-
-            result.Add(position);
-        }
+    public int GetTileValue(Vector3Int position) {
+        int result = boardGrid.GetTileValue(position);
 
         return result;
     }
 
-    public List<Vector2> GetFreeUpPositions(Vector2 origin) {
-        List<Vector2> result = new List<Vector2>();
-        Vector2Int originInt = Vector2Int.FloorToInt(origin);
+    public void SetTile(Vector2Int position, int value) {
+        Vector3Int position3Int = new Vector3Int(position.x, position.y, 0);
+        boardGrid.SetTile(position3Int, value);
+    }
 
-        for(int y = originInt.y + 1; y < height; ++y) {
-            Vector2 position = new Vector2(originInt.x, y);
-            int tileValue = boardGrid.GetTileValue(position);
+    public void SetTile(Vector3Int position, int value) {
+        boardGrid.SetTile(position, value);
+    }
 
-            if(tileValue > 0) { break; }
-
-            result.Add(position);
-        }
-
-        return result;
+    public void SetTile(Vector3 position, int value) {
+        boardGrid.SetTile(position, value);
     }
 
     public void UpdateTile(Vector3 position) {
@@ -94,7 +62,11 @@ public class BoardGrid : MonoBehaviour {
         boardGrid.UpdateTile(positionInt);
 
         int newValue = boardGrid.GetTileValue(positionInt);
-        boardGridDebug[positionInt.x, positionInt.y].text = newValue.ToString();
+
+        if(debug && boardGridDebug[positionInt.x, positionInt.y] != null) {
+            boardGridDebug[positionInt.x, positionInt.y].text
+                = newValue.ToString();
+        }
     }
 
     public void GetFreeKnightPositions(
@@ -117,7 +89,7 @@ public class BoardGrid : MonoBehaviour {
         }
     }
 
-    public void GetFreeQueenPositions(
+    public void GetQueenPositions(
         Vector2 origin,
         out List<Vector2> left,
         out List<Vector2> leftDown,
@@ -127,7 +99,8 @@ public class BoardGrid : MonoBehaviour {
         out List<Vector2> rightUp,
         out List<Vector2> down,
         out List<Vector2> up,
-        int limit
+        int limit,
+        int allowedOnceValue
     ){
         Vector2Int originInt = Vector2Int.FloorToInt(origin);
 
@@ -173,62 +146,100 @@ public class BoardGrid : MonoBehaviour {
             int valueDown      = boardGrid.GetTileValue(positionDown);
             int valueUp        = boardGrid.GetTileValue(positionUp);
 
-            if((valueLeft == 0) && (! blockLeft)) {
-                left.Add(positionLeft);
-            }
-            else { blockLeft = true; }
+            AddPosition2Direction(
+                valueLeft,
+                ref left,
+                positionLeft,
+                ref blockLeft,
+                allowedOnceValue
+            );
 
-            if((valueLeftDown == 0) && (! blockLeftDown)) {
-                leftDown.Add(positionLeftDown);
-            }
-            else { blockLeftDown = true; }
+            AddPosition2Direction(
+                valueLeftDown,
+                ref leftDown,
+                positionLeftDown,
+                ref blockLeftDown,
+                allowedOnceValue
+            );
 
-            if((valueLeftUp == 0) && (! blockLeftUp)) {
-                leftUp.Add(positionLeftUp);
-            }
-            else { blockLeftUp = true; }
+            AddPosition2Direction(
+                valueLeftUp,
+                ref leftUp,
+                positionLeftUp,
+                ref blockLeftUp,
+                allowedOnceValue
+            );
 
-            if((valueRight == 0) && ((! blockRight))) {
-                right.Add(positionRight);
-            }
-            else { blockRight = true; }
+            AddPosition2Direction(
+                valueRight,
+                ref right,
+                positionRight,
+                ref blockRight,
+                allowedOnceValue
+            );
 
-            if((valueRightDown == 0) && (! blockRightDown)) {
-                rightDown.Add(positionRightDown);
-            }
-            else { blockRightDown = true; }
+            AddPosition2Direction(
+                valueRightDown,
+                ref rightDown,
+                positionRightDown,
+                ref blockRightDown,
+                allowedOnceValue
+            );
 
-            if((valueRightUp == 0) && (! blockRightUp)) {
-                rightUp.Add(positionRightUp);
-            }
-            else { blockRightUp = true; }
+            AddPosition2Direction(
+                valueRightUp,
+                ref rightUp,
+                positionRightUp,
+                ref blockRightUp,
+                allowedOnceValue
+            );
 
-            if((valueDown == 0) && (! blockDown)) {
-                down.Add(positionDown);
-            }
-            else { blockDown = true; }
+            AddPosition2Direction(
+                valueDown,
+                ref down,
+                positionDown,
+                ref blockDown,
+                allowedOnceValue
+            );
 
-            if((valueUp == 0) && (! blockUp)) {
-                up.Add(positionUp);
-            }
-            else { blockUp = true; }
+            AddPosition2Direction(
+                valueUp,
+                ref up,
+                positionUp,
+                ref blockUp,
+                allowedOnceValue
+            );
         }
     }
 
-    public void GetFreeDiagonalPositions(
+    public void GetDiagonalPositions(
         Vector2 origin,
         out List<Vector2> leftDown,
         out List<Vector2> leftUp,
         out List<Vector2> rightDown,
-        out List<Vector2> rightUp
-    ){
+        out List<Vector2> rightUp,
+        int allowedOnceValue
+    ) {
         Vector2Int originInt = Vector2Int.FloorToInt(origin);
+
         leftDown  = new List<Vector2>();
         leftUp    = new List<Vector2>();
         rightDown = new List<Vector2>();
         rightUp   = new List<Vector2>();
 
+        bool blockLeftDown  = false;
+        bool blockLeftUp    = false;
+        bool blockRightDown = false;
+        bool blockRightUp   = false;
+
         for(int delta = 1; delta < width; ++delta) {
+            bool allBlocked = blockLeftDown
+                && blockLeftUp
+                && blockRightDown
+                && blockRightUp;
+
+            if(allBlocked) { break; }
+
             int xLeft  = originInt.x - delta;
             int xRight = originInt.x + delta;
             int yDown  = originInt.y - delta;
@@ -244,20 +255,48 @@ public class BoardGrid : MonoBehaviour {
             int valueRightDown = boardGrid.GetTileValue(positionRightDown);
             int valueRightUp   = boardGrid.GetTileValue(positionRightUp);
 
-            if(valueLeftDown  == 0) { leftDown.Add(positionLeftDown);   }
-            if(valueLeftUp    == 0) { leftUp.Add(positionLeftUp);       }
-            if(valueRightDown == 0) { rightDown.Add(positionRightDown); }
-            if(valueRightUp   == 0) { rightUp.Add(positionRightUp);     }
+            AddPosition2Direction(
+                valueLeftDown,
+                ref leftDown,
+                positionLeftDown,
+                ref blockLeftDown,
+                allowedOnceValue
+            );
+
+            AddPosition2Direction(
+                valueLeftUp,
+                ref leftUp,
+                positionLeftUp,
+                ref blockLeftUp,
+                allowedOnceValue
+            );
+
+            AddPosition2Direction(
+                valueRightDown,
+                ref rightDown,
+                positionRightDown,
+                ref blockRightDown,
+                allowedOnceValue
+            );
+
+            AddPosition2Direction(
+                valueRightUp,
+                ref rightUp,
+                positionRightUp,
+                ref blockRightUp,
+                allowedOnceValue
+            );
         }
     }
 
-    public void GetFreeOrthogonalPositions(
+    public void GetOrthogonalPositions(
         Vector2 origin,
         out List<Vector2> left,
         out List<Vector2> right,
         out List<Vector2> down,
         out List<Vector2> up,
-        int limit
+        int limit,
+        int allowedOnceValue = 0
     ) {
         Vector2Int originInt = Vector2Int.FloorToInt(origin);
 
@@ -287,18 +326,87 @@ public class BoardGrid : MonoBehaviour {
             int valueDown  = boardGrid.GetTileValue(positionDown);
             int valueUp    = boardGrid.GetTileValue(positionUp);
 
-            if((valueLeft == 0) && (! blockLeft)) { left.Add(positionLeft); }
-            else { blockLeft = true; }
+            AddPosition2Direction(
+                valueLeft,
+                ref left,
+                positionLeft,
+                ref blockLeft,
+                allowedOnceValue
+            );
 
-            if((valueRight == 0) && (! blockRight)) { right.Add(positionRight); }
-            else { blockRight = true; }
+            AddPosition2Direction(
+                valueRight,
+                ref right,
+                positionRight,
+                ref blockRight,
+                allowedOnceValue
+            );
 
-            if((valueDown == 0) && (! blockDown)) { down.Add(positionDown); }
-            else { blockDown = true; }
+            AddPosition2Direction(
+                valueDown,
+                ref down,
+                positionDown,
+                ref blockDown,
+                allowedOnceValue
+            );
 
-            if((valueUp == 0) && (! blockUp)) { up.Add(positionUp); }
-            else { blockUp = true; }
+            AddPosition2Direction(
+                valueUp,
+                ref up,
+                positionUp,
+                ref blockUp,
+                allowedOnceValue
+            );
         }
+    }
+
+    public void GetForwardPositions(
+        Vector3 origin,
+        out List<Vector2> forward,
+        Vector3Int direction,
+        int limit,
+        int allowedOnceValue
+    ) {
+        Vector3Int originInt = Vector3Int.FloorToInt(origin);
+
+        forward = new List<Vector2>();
+
+        bool blocked = false;
+
+        for(int i = 1; i <= limit; ++i) {
+            Vector3 positionForward = originInt + direction;
+
+            int tileValue = boardGrid.GetTileValue(positionForward);
+
+            AddPosition2Direction(
+                tileValue,
+                ref forward,
+                positionForward,
+                ref blocked,
+                allowedOnceValue
+            );
+        }
+    }
+
+    private void AddPosition2Direction(
+        int tileValue,
+        ref List<Vector2> direction,
+        Vector2 position2Add,
+        ref bool directionBlocked,
+        int nonFreeAllowedValue
+    ) {
+        bool canAddTile = (! directionBlocked)
+            && ((tileValue == Utils.TILE_VALUE_FREE)
+                || (tileValue == nonFreeAllowedValue));
+
+        if(canAddTile) {
+            direction.Add(position2Add);
+
+            if(tileValue != Utils.TILE_VALUE_FREE) {
+                directionBlocked = true;
+            }
+        }
+        else { directionBlocked = true; }
     }
 
     private void DebugVisualize() {

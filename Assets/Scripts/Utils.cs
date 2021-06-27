@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class Utils {
+    public const int    BOARD_WIDTH  = 8;
+    public const int    BOARD_HEIGHT = 8;
+
     public const int    KNIGHT_POSSIBLE_POSITIONS = 8;
     public const int    MAX_STEPS = 7;
     public const string UNITS_SORTING_LAYER = "Units";
-    public const int    KNIGHT_VERTICES_COUNT = 32;
-    public const int    ORTHOGONAL_TRIANGLE_POINTS_COUNT = 24;
-    public const int    ORTHOGONAL_VERICES_COUNT = 16;
+    public const string INDICATOR_SORTING_LAYER = "Indicator";
+
+    public const int TILE_VALUE_FREE   = 0;
+    public const int TILE_VALUE_PLAYER = 8;
+    public const int TILE_VALUE_ENEMY  = 9;
+    public const int TILE_VALUE_WALL   = 10;
 
     public static Vector3[] GetRectangleVertices(
         Vector2 leftBottom,

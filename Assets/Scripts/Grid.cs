@@ -75,7 +75,12 @@ public class Grid {
             obstaclesMask
         );
 
-        grid[x, y] = colliders.Length;
+        if(colliders.Length > 0) {
+            grid[x, y] = colliders[0].gameObject.layer;
+        }
+        else {
+            grid[x, y] = 0;
+        }
     }
 
     public void UpdateTile(Vector3Int position) {
@@ -84,6 +89,20 @@ public class Grid {
 
     public void UpdateTile(Vector3 position) {
         UpdateTile(Vector3Int.FloorToInt(position));
+    }
+
+    public void SetTile(int x, int y, int value) {
+        if(! AreCoordinatesValid(x, y)) { return; }
+
+        grid[x, y] = value;
+    }
+
+    public void SetTile(Vector3Int position, int value) {
+        SetTile(position.x, position.y, value);
+    }
+
+    public void SetTile(Vector3 position, int value) {
+        SetTile(Vector3Int.FloorToInt(position), value);
     }
 
     private bool AreCoordinatesValid(int x, int y) {
