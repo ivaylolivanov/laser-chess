@@ -2,28 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OrthogonalMovement : MonoBehaviour, IMovement {
-    [SerializeField] private UnitStats stats;
-
-    [Header("Indicator")]
-    [SerializeField] private Color indicatorColor = Color.green;
-
-    private bool hasMoved = false;
-
-    private BoardGrid boardGrid;
-
-    private Mesh         indicatorMesh;
-    private MeshRenderer indicatorRenderer;
-
+public class OrthogonalMovement : Movement {
     private List<Vector2> left;
     private List<Vector2> right;
     private List<Vector2> down;
     private List<Vector2> up;
 
     private void Awake() {
-        boardGrid = FindObjectOfType<BoardGrid>();
-
-        InitializeIndicator();
+        base.Awake();
 
         left  = new List<Vector2>();
         right = new List<Vector2>();
@@ -31,37 +17,8 @@ public class OrthogonalMovement : MonoBehaviour, IMovement {
         up    = new List<Vector2>();
     }
 
-    public void ShowIndicator() {
-        indicatorRenderer.enabled = true;
-    }
-
-    public void HideIndicator() {
-        indicatorRenderer.enabled = false;
-    }
-
-    public bool HasMoved() => hasMoved;
-
-    public bool CanMoveTo (Vector2Int position) {
-        bool result = false;
-
-        if((left     != null && left.Count  > 0 &&  left.Contains(position))
-           || (right != null && right.Count > 0 && right.Contains(position))
-           || (down  != null && down.Count  > 0 &&  down.Contains(position))
-           || (up    != null && up.Count    > 0 &&    up.Contains(position))
-        ) {
-            result = true;
-        }
-
-        return result;
-    }
-
-    public void GetAvailablePositions() {
-        if(left  != null) {  left.Clear(); left  = null; }
-        if(right != null) { right.Clear(); right = null; }
-        if(down  != null) {  down.Clear(); down  = null; }
-        if(up    != null) {    up.Clear(); up    = null; }
-
-        boardGrid.GetFreeOrthogonalPositions(
+    public override void GetAvailablePositions() {
+        boardGrid.GetOrthogonalPositions(
             transform.position,
             out left,
             out right,
@@ -69,49 +26,16 @@ public class OrthogonalMovement : MonoBehaviour, IMovement {
             out up,
             stats.stepsLimit
         );
+
+        if(allDirections != null) { allDirections.Clear(); }
+
+        allDirections.AddRange(left);
+        allDirections.AddRange(right);
+        allDirections.AddRange(down);
+        allDirections.AddRange(up);
     }
 
-    public void CreateIndicatorMesh() {
-        int squaresCount = CalculateNumberOfRectangles();
-
-        int allVertices = squaresCount * 4;
-        int trianglesCount = squaresCount * 2;
-        int trianglesVertices = trianglesCount * 3;
-
-        int[] triangles = new int[trianglesVertices];
-        Vector3[] vertices = new Vector3[allVertices];
-        Color[] verticesColors = new Color[allVertices];
-
-        indicatorMesh.Clear();
-
-        int verticesIndex = 0;
-        AddMeshDirection(ref verticesIndex, ref vertices, left, true);
-        AddMeshDirection(ref verticesIndex, ref vertices, right, false);
-        AddMeshDirection(ref verticesIndex, ref vertices, down, true);
-        AddMeshDirection(ref verticesIndex, ref vertices, up, false);
-
-        int triangleVertexIndex = 0;
-        for(int i = 0; i < squaresCount; ++i) {
-            triangles[triangleVertexIndex] = i * 4;       ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 2; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 1; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 2; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 3; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 1; ++triangleVertexIndex;
-
-            verticesColors[i * 4] = indicatorColor;
-            verticesColors[(i * 4) + 1] = indicatorColor;
-            verticesColors[(i * 4) + 2] = indicatorColor;
-            verticesColors[(i * 4) + 3] = indicatorColor;
-        }
-
-        indicatorMesh.vertices  = vertices;
-        indicatorMesh.triangles = triangles;
-        indicatorMesh.colors    = verticesColors;
-        indicatorMesh.RecalculateNormals();
-    }
-
-    public IEnumerator Move(Vector2 destination) {
+    protected override List<Vector2> DecideMoveDirection(Vector2 destination) {
         List<Vector2> direction = new List<Vector2>();
         if(destination.y == transform.position.y) {
             if(destination.x < transform.position.x) { direction = left; }
@@ -123,23 +47,19 @@ public class OrthogonalMovement : MonoBehaviour, IMovement {
             if(destination.y > transform.position.y) { direction = up; }
         }
 
-        Vector2 originalPosition = transform.position;
-        for(int i = 0; i < direction.Count; ++i) {
-            boardGrid.UpdateTile(transform.position);
-
-            if((Vector2)transform.position == destination) { break; }
-            transform.position = direction[i];
-
-            yield return new WaitForSeconds(stats.intervalBetweenSteps);
-
-            if((i - 1) < 0) { boardGrid.UpdateTile(originalPosition); }
-            else { boardGrid.UpdateTile(direction[i-1]); }
-        }
-
-        hasMoved = true;
+        return direction;
     }
 
-    private int CalculateNumberOfRectangles() {
+    protected override void FillMeshVertices(ref Vector3[] vertices) {
+        int verticesIndex = 0;
+
+        AddMeshDirection(ref verticesIndex, ref vertices, left, true);
+        AddMeshDirection(ref verticesIndex, ref vertices, right);
+        AddMeshDirection(ref verticesIndex, ref vertices, down, true);
+        AddMeshDirection(ref verticesIndex, ref vertices, up);
+    }
+
+    protected override int CalculateNumberOfRectangles() {
         int vertices = ((left.Count > 0) ? 1 : 0)
             + ((right.Count > 0) ? 1 : 0)
             + ((down.Count > 0) ? 1 : 0)
@@ -173,17 +93,5 @@ public class OrthogonalMovement : MonoBehaviour, IMovement {
             meshVertices[index] = vertex - transform.position;
             ++index;
         }
-    }
-
-    private void InitializeIndicator() {
-        indicatorMesh = new Mesh();
-
-        indicatorRenderer = GetComponent<MeshRenderer>();
-        indicatorRenderer.sortingOrder     = 0;
-        indicatorRenderer.sortingLayerName = Utils.UNITS_SORTING_LAYER;
-
-        GetComponent<MeshFilter>().mesh = indicatorMesh;
-
-        HideIndicator();
     }
 }

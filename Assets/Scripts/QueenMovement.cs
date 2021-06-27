@@ -2,19 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QueenMovement : MonoBehaviour, IMovement {
-    [SerializeField] private UnitStats stats;
-
-    [Header("Indicator")]
-    [SerializeField] private Color indicatorColor = Color. green;
-
-    private bool hasMoved = false;
-
-    private BoardGrid boardGrid;
-
-    private Mesh         indicatorMesh;
-    private MeshRenderer indicatorRenderer;
-
+public class QueenMovement : Movement {
     private List<Vector2> left;
     private List<Vector2> leftDown;
     private List<Vector2> leftUp;
@@ -25,9 +13,7 @@ public class QueenMovement : MonoBehaviour, IMovement {
     private List<Vector2> up;
 
     private void Awake() {
-        boardGrid = FindObjectOfType<BoardGrid>();
-
-        InitializeIndicator();
+        base.Awake();
 
         left      = new List<Vector2>();
         leftDown  = new List<Vector2>();
@@ -39,31 +25,8 @@ public class QueenMovement : MonoBehaviour, IMovement {
         up        = new List<Vector2>();
     }
 
-    public void ShowIndicator() {
-        indicatorRenderer.enabled = true;
-    }
-
-    public void HideIndicator() {
-        indicatorRenderer.enabled = false;
-    }
-
-    public bool HasMoved() => hasMoved;
-
-    public bool CanMoveTo (Vector2Int position) {
-        bool result = Utils.CanMoveInDirection(left, position)
-            || Utils.CanMoveInDirection(leftDown,    position)
-            || Utils.CanMoveInDirection(leftUp,      position)
-            || Utils.CanMoveInDirection(right,       position)
-            || Utils.CanMoveInDirection(rightDown,   position)
-            || Utils.CanMoveInDirection(rightUp,     position)
-            || Utils.CanMoveInDirection(down,        position)
-            || Utils.CanMoveInDirection(up,          position);
-
-        return result;
-    }
-
-    public void GetAvailablePositions() {
-        boardGrid.GetFreeQueenPositions(
+    public override void GetAvailablePositions() {
+        boardGrid.GetQueenPositions(
             transform.position,
             out left,
             out leftDown,
@@ -73,24 +36,54 @@ public class QueenMovement : MonoBehaviour, IMovement {
             out rightUp,
             out down,
             out up,
-            stats.stepsLimit
+            stats.stepsLimit,
+            Utils.TILE_VALUE_FREE
         );
+
+        if(allDirections != null) { allDirections.Clear(); }
+
+        allDirections.AddRange(left);
+        allDirections.AddRange(leftDown);
+        allDirections.AddRange(leftUp);
+        allDirections.AddRange(right);
+        allDirections.AddRange(rightDown);
+        allDirections.AddRange(rightUp);
+        allDirections.AddRange(down);
+        allDirections.AddRange(up);
     }
 
-    public void CreateIndicatorMesh() {
-        int squaresCount = CalculateNumberOfSquares();
+    protected override List<Vector2> DecideMoveDirection(Vector2 destination) {
+        List<Vector2> direction = new List<Vector2>();
 
-        int allVertices = squaresCount * 4;
-        int trianglesCount = squaresCount * 2;
-        int trianglesVertices = trianglesCount * 3;
+        if(destination.x < transform.position.x) {
+            if(destination.y == transform.position.y) {
+                direction = left;
+            }
+            else if(destination.y < transform.position.y) {
+                direction = leftDown;
+            }
+            else { direction = leftUp; }
+        }
+        else if(destination.x > transform.position.x) {
+            if(destination.y == transform.position.y) {
+                direction = right;
+            }
+            else if(destination.y < transform.position.y) {
+                direction = rightDown;
+            }
+            else { direction = rightUp; }
+        }
+        else {
+            if(destination.y < transform.position.y) { direction = down; }
+            if(destination.y > transform.position.y) { direction = up; }
+        }
 
-        int[] triangles = new int[trianglesVertices];
-        Vector3[] vertices = new Vector3[allVertices];
-        Color[] verticesColors = new Color[allVertices];
+        return direction;
+    }
 
-        indicatorMesh.Clear();
-
+    protected override void FillMeshVertices(ref Vector3[] vertices) {
         int verticesIndex = 0;
+
         AddMeshOrthogonal(ref verticesIndex, ref vertices, left, true);
         AddMeshDiagonal(  ref verticesIndex, ref vertices, leftDown);
         AddMeshDiagonal(  ref verticesIndex, ref vertices, leftUp);
@@ -100,64 +93,19 @@ public class QueenMovement : MonoBehaviour, IMovement {
         AddMeshOrthogonal(ref verticesIndex, ref vertices, down, true);
         AddMeshOrthogonal(ref verticesIndex, ref vertices, up, false);
 
-        int triangleVertexIndex = 0;
-        for(int i = 0; i < squaresCount; ++i) {
-            triangles[triangleVertexIndex] = i * 4;       ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 2; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 1; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 2; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 3; ++triangleVertexIndex;
-            triangles[triangleVertexIndex] = (i * 4) + 1; ++triangleVertexIndex;
-
-            verticesColors[i * 4] = indicatorColor;
-            verticesColors[(i * 4) + 1] = indicatorColor;
-            verticesColors[(i * 4) + 2] = indicatorColor;
-            verticesColors[(i * 4) + 3] = indicatorColor;
-        }
-
-        indicatorMesh.vertices  = vertices;
-        indicatorMesh.colors    = verticesColors;
-        indicatorMesh.triangles = triangles;
-        indicatorMesh.RecalculateNormals();
     }
 
-    public IEnumerator Move(Vector2 destination) {
-        List<Vector2> direction = DecideMoveDirection(destination);
+    protected override int CalculateNumberOfRectangles() {
+        int vertices = ((left.Count > 0) ? 1 : 0)
+            + leftDown.Count
+            + leftUp.Count
+            + ((right.Count > 0) ? 1 : 0)
+            + rightDown.Count
+            + rightUp.Count
+            + ((down.Count > 0) ? 1 : 0)
+            + ((up.Count > 0) ? 1 : 0);
 
-        Vector2 originalPosition = transform.position;
-        for(int i = 0; i < direction.Count; ++i) {
-            boardGrid.UpdateTile(transform.position);
-
-            if((Vector2)transform.position == destination) { break; }
-            transform.position = direction[i];
-
-            yield return new WaitForSeconds(stats.intervalBetweenSteps);
-
-            if((i - 1) < 0) { boardGrid.UpdateTile(originalPosition); }
-            else { boardGrid.UpdateTile(direction[i-1]); }
-        }
-
-        hasMoved = true;
-    }
-
-    private void AddMeshDiagonal(
-        ref int index,
-        ref Vector3[] meshVertices,
-        List<Vector2> direction
-    ) {
-        if(direction == null || direction.Count <= 0) { return; }
-
-        foreach(Vector2 point in direction) {
-            Vector3[] squareVertices = Utils.GetRectangleVertices(
-                point,
-                point + Vector2.one
-            );
-
-            foreach(Vector3 vertex in squareVertices) {
-                meshVertices[index] = vertex - transform.position;
-                ++index;
-            }
-        }
+        return vertices;
     }
 
     private void AddMeshOrthogonal(
@@ -187,56 +135,23 @@ public class QueenMovement : MonoBehaviour, IMovement {
         }
     }
 
-    private int CalculateNumberOfSquares() {
-        int vertices = ((left.Count > 0) ? 1 : 0)
-            + leftDown.Count
-            + leftUp.Count
-            + ((right.Count > 0) ? 1 : 0)
-            + rightDown.Count
-            + rightUp.Count
-            + ((down.Count > 0) ? 1 : 0)
-            + ((up.Count > 0) ? 1 : 0);
+    private void AddMeshDiagonal(
+        ref int index,
+        ref Vector3[] meshVertices,
+        List<Vector2> direction
+    ) {
+        if(direction == null || direction.Count <= 0) { return; }
 
-        return vertices;
-    }
+        foreach(Vector2 point in direction) {
+            Vector3[] squareVertices = Utils.GetRectangleVertices(
+                point,
+                point + Vector2.one
+            );
 
-    private List<Vector2> DecideMoveDirection(Vector2 destination) {
-        List<Vector2> direction = new List<Vector2>();
-
-        if(destination.x < transform.position.x) {
-            if(destination.y == transform.position.y) {
-                direction = left;
+            foreach(Vector3 vertex in squareVertices) {
+                meshVertices[index] = vertex - transform.position;
+                ++index;
             }
-            else if(destination.y < transform.position.y) {
-                direction = leftDown;
-            }
-            else { direction = leftUp; }
         }
-        else if(destination.x > transform.position.x) {
-            if(destination.y == transform.position.y) {
-                direction = right;
-            }
-            else if(destination.y < transform.position.y) {
-                direction = rightDown;
-            }
-            else { direction = rightUp; }
-        }
-        else {
-            if(destination.y < transform.position.y) { direction = down; }
-            if(destination.y > transform.position.y) { direction = up; }
-        }
-
-        return direction;
-    }
-
-    private void InitializeIndicator() {
-        indicatorRenderer = GetComponent<MeshRenderer>();
-        indicatorRenderer.sortingLayerName = Utils.UNITS_SORTING_LAYER;
-        indicatorRenderer.sortingOrder     = 0;
-
-        indicatorMesh = new Mesh();
-        GetComponent<MeshFilter>().mesh = indicatorMesh;
-
-        HideIndicator();
     }
 }
