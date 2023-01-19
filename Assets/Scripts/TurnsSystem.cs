@@ -1,12 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum Turns {PLAYER_TURN, ENEMY_TURN, WON, LOST }
 
 public class TurnsSystem : MonoBehaviour {
     private PlayerController player;
     private EnemyController enemy;
+
+    public static UnityAction LevelWon;
+    public static UnityAction LevelLost;
 
     public Turns currentTurn { get; private set; }
 
@@ -36,10 +38,18 @@ public class TurnsSystem : MonoBehaviour {
 
     public void Won() {
         currentTurn = Turns.WON;
-        StartCoroutine(SceneLoader.LoadNextSceneDelayed(3f));
+
+        int currentSceneIndex = SceneLoader.GetCurrentSceneBuildIndex();
+        PlayerProgression.UpdatePlayerProgression(currentSceneIndex);
+
+        // StartCoroutine(SceneLoader.LoadNextSceneDelayed(3f));
+
+        LevelWon?.Invoke();
     }
     public void Lost() {
         currentTurn = Turns.LOST;
-        StartCoroutine(SceneLoader.ReloadCurrentSceneDelayed(3f));
+        // StartCoroutine(SceneLoader.ReloadCurrentSceneDelayed(3f));
+
+        LevelLost?.Invoke();
     }
 }
