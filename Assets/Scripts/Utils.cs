@@ -3,18 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class Utils {
+
+    #region Constants
+
+    // Board
     public const int    BOARD_WIDTH  = 8;
     public const int    BOARD_HEIGHT = 8;
 
+    // Unit movement
     public const int    KNIGHT_POSSIBLE_POSITIONS = 8;
     public const int    MAX_STEPS = 7;
+
+    // Sorting layers
     public const string UNITS_SORTING_LAYER = "Units";
     public const string INDICATOR_SORTING_LAYER = "Indicator";
 
+    // Tiles
     public const int TILE_VALUE_FREE   = 0;
     public const int TILE_VALUE_PLAYER = 8;
     public const int TILE_VALUE_ENEMY  = 9;
     public const int TILE_VALUE_WALL   = 10;
+
+    public const string HIGHEST_UNLOCKED_LEVEL = "HighestUnlockedLevel";
+
+    #endregion
 
     public static Vector3[] GetRectangleVertices(
         Vector2 leftBottom,
@@ -83,5 +95,17 @@ public static class Utils {
 
         int count = Mathf.Max(0, arr.Count - 1 - fromIndex);
         arr.RemoveRange(fromIndex, count);
+    }
+
+    public static void ShowObject(Transform transform)
+        => transform.localScale = Vector3.one;
+
+    public static void HideObject(Transform transform)
+        => transform.localScale = Vector3.zero;
+
+    public static bool IsObjectShown(Transform transform) {
+        bool result = transform.localScale == Vector3.one;
+
+        return result;
     }
 }
