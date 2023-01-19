@@ -6,6 +6,7 @@ public class BoardGrid : MonoBehaviour {
     [Header("Grid")]
     [SerializeField] private int width;
     [SerializeField] private int height;
+    [SerializeField] private float gridLineWidth;
     [SerializeField] private float tileSize;
     [SerializeField] private LayerMask obstaclesMask;
 
@@ -16,6 +17,9 @@ public class BoardGrid : MonoBehaviour {
     private Grid boardGrid;
     private TextMesh[, ] boardGridDebug;
 
+    private MeshFilter   gridMeshFilter;
+    private MeshRenderer gridRenderer;
+
     void Awake() {
         boardGrid = new Grid(width, height, tileSize, obstaclesMask);
 
@@ -23,6 +27,14 @@ public class BoardGrid : MonoBehaviour {
             boardGridDebug = new TextMesh[width, height];
             DebugVisualize();
         }
+
+        gridMeshFilter = GetComponent<MeshFilter>();
+        gridRenderer   = GetComponent<MeshRenderer>();
+
+        gridRenderer.sortingOrder = 0;
+        gridRenderer.sortingLayerName = Utils.INDICATOR_SORTING_LAYER;
+
+        CreateGridMesh();
     }
 
     public int GetTileValue(Vector2Int position) {
@@ -463,5 +475,85 @@ public class BoardGrid : MonoBehaviour {
                 Debug.DrawLine(rightVerticalA, rightVerticalB, lineColor, 100f);
             }
         }
+    }
+
+    private void CreateGridMesh() {
+        Mesh gridMesh = new Mesh();
+
+        gridMesh.name = "GridMesh";
+
+        gridMesh.Clear();
+
+        int rectanglesCount = width + height - 2;
+        int verticesCount   = rectanglesCount * 4;
+
+        gridMesh.vertices  = GenerateGridMeshVertices(verticesCount);
+        gridMesh.triangles = GenerateGridMeshTriangles(rectanglesCount);
+
+        Color[] vertexColors = new Color[verticesCount];
+        for (int vertex = 0; vertex < verticesCount; ++vertex)
+            vertexColors[vertex] = Color.white;
+
+        gridMesh.colors = vertexColors;
+
+        gridMesh.RecalculateNormals();
+
+        gridMeshFilter.mesh = gridMesh;
+    }
+
+    private Vector3[] GenerateGridMeshVertices(int verticesCount)
+    {
+        Vector3[] vertices = new Vector3[verticesCount];
+
+        // Vertical Lines
+        int vertexIndex = 0;
+        for (int x = 1; x < width; ++x)
+        {
+            Vector3[] lineVertices = Utils.GetRectangleVertices(
+                new Vector2(x, 1),
+                new Vector2(x + gridLineWidth, height - 1)
+            );
+
+            for (int i = 0; i < lineVertices.Length; ++i)
+            {
+                vertexIndex = (x - 1) * 4 + i;
+                vertices[vertexIndex] = lineVertices[i];
+            }
+        }
+        vertexIndex++;
+
+        // Horizontal Lines
+        for (int y = 1; y < height; ++y)
+        {
+            Vector3[] lineVertices = Utils.GetRectangleVertices(
+                new Vector2(1, y),
+                new Vector2(width - 1 + gridLineWidth, y + gridLineWidth)
+            );
+
+            for (int i = 0; i < lineVertices.Length; ++i)
+                vertices[vertexIndex + (y - 1) * 4 + i] = lineVertices[i];
+        }
+
+        return vertices;
+    }
+
+    private int[] GenerateGridMeshTriangles(int rectanglesCount)
+    {
+        int trianglesCount  = rectanglesCount * 6;
+        int[] triangles = new int[trianglesCount * 2];
+
+        int triangleVertexIndex = 0;
+        for (int rectangle = 0; rectangle < rectanglesCount; ++rectangle)
+        {
+            triangles[triangleVertexIndex++] =  rectangle * 4;
+            triangles[triangleVertexIndex++] = (rectangle * 4) + 2;
+            triangles[triangleVertexIndex++] = (rectangle * 4) + 1;
+
+            triangles[triangleVertexIndex++] = (rectangle * 4) + 2;
+            triangles[triangleVertexIndex++] = (rectangle * 4) + 3;
+            triangles[triangleVertexIndex++] = (rectangle * 4) + 1;
+        }
+
+        return triangles;
     }
 }
