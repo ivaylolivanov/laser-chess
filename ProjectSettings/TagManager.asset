@@ -44,6 +44,9 @@ TagManager:
   - name: Terrain
     uniqueID: 284727413
     locked: 0
+  - name: Indicator
+    uniqueID: 4014321211
+    locked: 0
   - name: Units
     uniqueID: 4270762709
     locked: 0
