@@ -519,7 +519,7 @@ public class BoardGrid : MonoBehaviour {
                 vertices[vertexIndex] = lineVertices[i];
             }
         }
-        vertexIndex++;
+        ++vertexIndex;
 
         // Vertical Lines
         for (int y = 1; y < height; ++y)
