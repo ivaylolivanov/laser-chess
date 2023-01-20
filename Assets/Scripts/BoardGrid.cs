@@ -6,7 +6,6 @@ public class BoardGrid : MonoBehaviour {
     [Header("Grid")]
     [SerializeField] private int width;
     [SerializeField] private int height;
-    [SerializeField] private float gridLineWidth;
     [SerializeField] private float tileSize;
     [SerializeField] private LayerMask obstaclesMask;
 
@@ -511,7 +510,7 @@ public class BoardGrid : MonoBehaviour {
         {
             Vector3[] lineVertices = Utils.GetRectangleVertices(
                 new Vector2(x, 1),
-                new Vector2(x + gridLineWidth, height - 1)
+                new Vector2(x + Utils.GRID_LINE_WIDTH, height - 1 + Utils.GRID_LINE_WIDTH)
             );
 
             for (int i = 0; i < lineVertices.Length; ++i)
@@ -527,7 +526,7 @@ public class BoardGrid : MonoBehaviour {
         {
             Vector3[] lineVertices = Utils.GetRectangleVertices(
                 new Vector2(1, y),
-                new Vector2(width - 1 + gridLineWidth, y + gridLineWidth)
+                new Vector2(width - 1, y + Utils.GRID_LINE_WIDTH)
             );
 
             for (int i = 0; i < lineVertices.Length; ++i)

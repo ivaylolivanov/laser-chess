@@ -9,6 +9,7 @@ public static class Utils {
     // Board
     public const int    BOARD_WIDTH  = 8;
     public const int    BOARD_HEIGHT = 8;
+    public const float  GRID_LINE_WIDTH = 0.05f;
 
     // Unit movement
     public const int    KNIGHT_POSSIBLE_POSITIONS = 8;
