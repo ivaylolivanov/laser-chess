@@ -504,7 +504,7 @@ public class BoardGrid : MonoBehaviour {
     {
         Vector3[] vertices = new Vector3[verticesCount];
 
-        // Vertical Lines
+        // Horizontal Lines
         int vertexIndex = 0;
         for (int x = 1; x < width; ++x)
         {
@@ -521,7 +521,7 @@ public class BoardGrid : MonoBehaviour {
         }
         vertexIndex++;
 
-        // Horizontal Lines
+        // Vertical Lines
         for (int y = 1; y < height; ++y)
         {
             Vector3[] lineVertices = Utils.GetRectangleVertices(
