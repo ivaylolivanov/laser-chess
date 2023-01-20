@@ -29,6 +29,17 @@ public static class Utils {
 
     #endregion
 
+    public static Camera MainCamera = Camera.main;
+
+    public static Vector3 GetMouseWorldPoint() {
+        Vector3 mouseWorldPosition = MainCamera.ScreenToWorldPoint(
+            Input.mousePosition
+        );
+        mouseWorldPosition.z = 0;
+
+        return mouseWorldPosition;
+    }
+
     public static Vector3[] GetRectangleVertices(
         Vector2 leftBottom,
         Vector2 rightTop
