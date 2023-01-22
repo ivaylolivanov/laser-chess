@@ -2,8 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum UnitType : uint {
+    // Player units
+    GRUNT    = 1 << 0,
+    JUMPSHIP = 1 << 1,
+    TANK     = 1 << 2,
+    IS_PLAYER_UNIT = GRUNT | JUMPSHIP | TANK,
+
+    // Enemy units;
+    DRONE       = 1 << 3,
+    DREADNOUGHT = 1 << 4,
+    COMMANDER   = 1 << 5,
+    IS_ENEMY_UNIT = DRONE | DREADNOUGHT | COMMANDER,
+
+    ALL_UNIT_TYPES = COMMANDER
+}
+
 public class Unit : MonoBehaviour {
     [SerializeField] protected Stats stats;
+
+    [SerializeField] private UnitType unitType;
 
     protected Canvas unitCanvas;
     protected Healthbar healthbar;
@@ -25,9 +43,42 @@ public class Unit : MonoBehaviour {
     protected void Start() {
         if(healthbar != null) { healthbar.SetMaxHealth(stats.maxHealth); }
         Deselect();
+
+        if ((unitType & UnitType.IS_ENEMY_UNIT) != 0)
+            boardGrid.SetTile(transform.position, Utils.TILE_VALUE_ENEMY);
+        else if ((unitType & UnitType.IS_PLAYER_UNIT) != 0)
+            boardGrid.SetTile(transform.position, Utils.TILE_VALUE_PLAYER);
     }
 
-    public virtual void Select() { }
+    public UnitType GetUnitType() => unitType;
+
+    public virtual void Select() {
+        if(unitCanvas != null) unitCanvas.enabled = true;
+
+        if((movement != null) && (! movement.hasMoved)) {
+            movement.GetAvailablePositions();
+
+            if(movement.HasMovementOptions()) {
+                movement.CreateIndicatorMesh();
+                movement.ShowIndicator();
+            }
+            else {
+                movement.hasMoved = true;
+            }
+
+        }
+        else if((attack != null) && (! attack.hasAttacked)) {
+            attack.GetAvailablePositions();
+
+            if(attack.HasAttackOptions()) {
+                attack.CreateIndicatorMesh();
+                attack.ShowIndicator();
+            }
+            else {
+                attack.hasAttacked = true;
+            }
+        }
+    }
 
     public bool CanMoveTo(Vector2Int worldPosition) {
         bool result = false;
@@ -58,8 +109,15 @@ public class Unit : MonoBehaviour {
     }
 
     public virtual void MoveTo(Vector2 worldPosition) {
+        if (! CanMoveTo(worldPosition)) return;
+
         Vector2Int worldPositionInt = Vector2Int.FloorToInt(worldPosition);
         movement.Move(worldPositionInt);
+
+        if ((unitType & UnitType.IS_ENEMY_UNIT) != 0)
+            boardGrid.SetTile(worldPosition, Utils.TILE_VALUE_ENEMY);
+        else if ((unitType & UnitType.IS_PLAYER_UNIT) != 0)
+            boardGrid.SetTile(worldPosition, Utils.TILE_VALUE_PLAYER);
     }
 
     public Vector2 GetPositionClosestTo(Vector2 worldPosition) {

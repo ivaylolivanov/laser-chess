@@ -1,62 +1,46 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public enum PlayerUnitTypes { GRUNT, JUMPSHIP, TANK }
+using UnityEngine.Events;
 
 public class PlayerUnit : Unit {
-    [SerializeField] private PlayerUnitTypes unitType;
 
-    private PlayerController owner;
+    // private PlayerController owner;
 
-    void Awake() {
-        base.Awake();
+    // public override void MoveTo(Vector2 worldPosition) {
+    //     Vector2Int worldPositionInt = Vector2Int.FloorToInt(worldPosition);
+    //     movement.Move(worldPositionInt);
 
-        owner = FindObjectOfType<PlayerController>();
-    }
+    //     boardGrid.SetTile(worldPosition, Utils.TILE_VALUE_ENEMY);
+    // }
 
-    void Start() {
-        base.Start();
+    // public override void Select() {
+    //     if(unitCanvas != null) { unitCanvas.enabled = true; }
 
-        owner.AddUnit(this);
-    }
+    //     if((movement != null) && (! movement.hasMoved)) {
+    //         movement.GetAvailablePositions();
 
-    public override void MoveTo(Vector2 worldPosition) {
-        Vector2Int worldPositionInt = Vector2Int.FloorToInt(worldPosition);
-        movement.Move(worldPositionInt);
+    //         if(movement.HasMovementOptions()) {
+    //             movement.CreateIndicatorMesh();
+    //             movement.ShowIndicator();
+    //         }
+    //         else {
+    //             movement.hasMoved = true;
+    //         }
 
-        boardGrid.SetTile(worldPosition, Utils.TILE_VALUE_ENEMY);
-    }
+    //     }
+    //     else if((attack != null) && (! attack.hasAttacked)) {
+    //         attack.GetAvailablePositions();
 
-    public override void Select() {
-        if(unitCanvas != null) { unitCanvas.enabled = true; }
+    //         if(attack.HasAttackOptions()) {
+    //             attack.CreateIndicatorMesh();
+    //             attack.ShowIndicator();
+    //         }
+    //         else {
+    //             attack.hasAttacked = true;
+    //         }
+    //     }
+    // }
 
-        if((movement != null) && (! movement.hasMoved)) {
-            movement.GetAvailablePositions();
-
-            if(movement.HasMovementOptions()) {
-                movement.CreateIndicatorMesh();
-                movement.ShowIndicator();
-            }
-            else {
-                movement.hasMoved = true;
-            }
-
-        }
-        else if((attack != null) && (! attack.hasAttacked)) {
-            attack.GetAvailablePositions();
-
-            if(attack.HasAttackOptions()) {
-                attack.CreateIndicatorMesh();
-                attack.ShowIndicator();
-            }
-            else {
-                attack.hasAttacked = true;
-            }
-        }
-    }
-
-    public PlayerUnitTypes GetUnitType() => unitType;
-
-    private void OnDestroy() { owner.RemoveUnit(this); }
+    // private void OnDestroy() { owner.RemoveUnit(this); }
 }

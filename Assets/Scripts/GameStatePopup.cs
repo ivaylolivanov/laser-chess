@@ -25,15 +25,15 @@ public class GameStatePopup : MonoBehaviour {
         Utils.HideObject(transform);
         mainMenuButton.onClick.AddListener(SceneLoader.LoadMainMenu);
 
-        TurnsSystem.LevelWon  += OnLevelWon;
-        TurnsSystem.LevelLost += OnLevelLost;
+        // TurnsSystem.LevelWon.AddListener(OnLevelWon);
+        // TurnsSystem.LevelLost.AddListener(OnLevelLost);
     }
 
     public void OnDisable() {
         mainMenuButton.onClick.RemoveListener(SceneLoader.LoadMainMenu);
 
-        TurnsSystem.LevelWon  -= OnLevelWon;
-        TurnsSystem.LevelLost -= OnLevelLost;
+        TurnsSystem.LevelWon.RemoveListener(OnLevelWon);
+        TurnsSystem.LevelLost.RemoveListener(OnLevelLost);
     }
 
     private void OnLevelWon() {
