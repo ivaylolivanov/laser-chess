@@ -15,6 +15,8 @@ public class TurnsSystem : MonoBehaviour {
     void Awake() {
         player = FindObjectOfType<PlayerController>();
         enemy = FindObjectOfType<EnemyController>();
+
+        EndPlayerTurn.OnEndPlayerTurnButtonPressed += EnemyTurn;
     }
 
     void Start() {
@@ -42,13 +44,11 @@ public class TurnsSystem : MonoBehaviour {
         int currentSceneIndex = SceneLoader.GetCurrentSceneBuildIndex();
         PlayerProgression.UpdatePlayerProgression(currentSceneIndex);
 
-        // StartCoroutine(SceneLoader.LoadNextSceneDelayed(3f));
-
         LevelWon?.Invoke();
     }
+
     public void Lost() {
         currentTurn = Turns.LOST;
-        // StartCoroutine(SceneLoader.ReloadCurrentSceneDelayed(3f));
 
         LevelLost?.Invoke();
     }

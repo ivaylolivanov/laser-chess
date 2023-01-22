@@ -29,7 +29,6 @@ public class PlayerController : MonoBehaviour {
         }
 
         if(! AtLeast1UnitHasOptions()) {
-            turnsSystem.EnemyTurn();
             return;
         }
 
